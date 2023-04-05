@@ -1,0 +1,21 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  background: #000;
+  color: white;
+}
+
+.main-board {
+  display: grid;
+  grid-template-columns: repeat(3, min(100px, 200px));
+  grid-template-rows: repeat(3, min(100px, 200px));
+}
+
+.cell {
+  border: solid steelblue;
+  cursor: pointer;
+}

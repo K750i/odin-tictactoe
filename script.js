@@ -1,5 +1,11 @@
 'use strict';
 
+const mainBoard = document.querySelector('.main-board');
+const cells = document.querySelectorAll('.cell');
+const playerScoreDisplay = document.querySelector('.player-score');
+const tieScoreDisplay = document.querySelector('.tie-score');
+const computerScoreDisplay = document.querySelector('.computer-score');
+
 const Board = function () {
   let gameboard = Array(9).fill(null);
 
@@ -30,28 +36,38 @@ const Board = function () {
 };
 
 const GameController = (function (board) {
-  let isPlayerTurn;
+  let isPlaying = true;
+  let isPlayerTurn = true;
   let playerScore = 0;
   let computerScore = 0;
-  let round = 1;
+  let tie = 0;
   let winner;
 
   const displayBoard = function () {
-    console.log('Round: ' + round);
-    console.log('Player Score: ' + playerScore, 'Computer Score: ' + computerScore);
     const currentBoard = board.getBoard();
-    console.log(currentBoard[0], currentBoard[1], currentBoard[2]);
-    console.log(currentBoard[3], currentBoard[4], currentBoard[5]);
-    console.log(currentBoard[6], currentBoard[7], currentBoard[8]);
+
+    cells.forEach((cell, i) => {
+      cell.textContent = currentBoard[i];
+    });
+    playerScoreDisplay.textContent = playerScore;
+    tieScoreDisplay.textContent = tie;
+    computerScoreDisplay.textContent = computerScore;
   }
 
   const newGame = function (playerTurn = true) {
+    isPlaying = true;
+    isPlayerTurn = playerTurn;
+    resetGame();
+    board.reset();
+    displayBoard();
+  }
+
+  const resetGame = function () {
+    isPlaying = true;
     isPlayerTurn = playerTurn;
     playerScore = 0;
     computerScore = 0;
-    round = 1;
-    board.reset();
-    displayBoard();
+    tie = 0;
   }
 
   const getTurn = () => isPlayerTurn ? 'Player' : 'Computer';
@@ -61,26 +77,29 @@ const GameController = (function (board) {
 
     displayBoard();
 
+    isPlayerTurn = !isPlayerTurn;
+
     winner = checkForWinner(board.getBoard());
     if (winner) {
-      console.log('winner is ' + winner);
       if (winner === 'X') {
         ++playerScore;
       } else {
         ++computerScore;
       }
+      isPlaying = false;
+      displayBoard();
       return;
     } else if (!board.getBoard().includes(null)) {
-      console.log('It\'s a tie');
+      ++tie;
+      isPlaying = false;
+      displayBoard();
       return;
     }
-
-    isPlayerTurn = !isPlayerTurn;
   }
 
   const nextRound = function () {
-    isPlayerTurn = winner === 'X' ? false : true;
-    ++round;
+    isPlaying = true;
+    // isPlayerTurn = !isPlayerTurn;
     board.reset();
     displayBoard();
   }
@@ -110,5 +129,20 @@ const GameController = (function (board) {
     getTurn,
     makeMove,
     nextRound,
+    resetGame,
+    isPlaying: () => isPlaying,
   }
 })(Board());
+
+
+mainBoard.addEventListener('click', handleClick);
+
+function handleClick(e) {
+  if (!e.target.matches('.cell')) return;
+  if (!GameController.isPlaying()) {
+    GameController.nextRound();
+    return;
+  };
+
+  GameController.makeMove(parseInt(e.target.dataset.cellId, 10));
+}
