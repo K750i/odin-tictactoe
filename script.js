@@ -14,7 +14,7 @@ const Board = function () {
   const setBoard = (playerTurn, location) => {
     if (location < 0
       || location > 8
-      || gameboard[location]) return false;
+      || gameboard[location] !== null) return false;
 
     const token = playerTurn ? 'X' : 'O';
     gameboard = gameboard.map((square, i) => {
@@ -27,6 +27,7 @@ const Board = function () {
   const reset = () => {
     gameboard = Array(9).fill(null);
     cells.forEach((cell) => {
+      cell.classList.remove('blinking');
       cell.firstElementChild.classList.remove('animate');
     })
   };
@@ -46,6 +47,7 @@ const GameController = (function (board) {
   let computerScore = 0;
   let tie = 0;
   let winner;
+  let cellIndexes;
 
   const displayBoard = function (loc = null) {
     const currentBoard = board.getBoard();
@@ -86,13 +88,14 @@ const GameController = (function (board) {
   const getTurn = () => isPlayerTurn ? 'Player' : 'Computer';
 
   const makeMove = function (location) {
-    if (!board.setBoard(isPlayerTurn, location)) return;
+    if (!board.setBoard(isPlayerTurn, location)) return false;
 
     displayBoard(location);
 
     isPlayerTurn = !isPlayerTurn;
 
-    winner = checkForWinner(board.getBoard());
+    [winner, ...cellIndexes] = checkForWinner(board.getBoard());
+
     if (winner) {
       if (winner === 'X') {
         ++playerScore;
@@ -100,6 +103,7 @@ const GameController = (function (board) {
         ++computerScore;
       }
       isPlaying = false;
+      animateMatchedCells(cellIndexes);
       displayBoard();
       return;
     } else if (!board.getBoard().includes(null)) {
@@ -108,6 +112,8 @@ const GameController = (function (board) {
       displayBoard();
       return;
     }
+
+    return true;
   }
 
   const nextRound = function () {
@@ -131,10 +137,16 @@ const GameController = (function (board) {
     for (let i = 0; i < lines.length; i++) {
       const [a, b, c] = lines[i];
       if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) {
-        return cells[a];
+        return [cells[a], a, b, c];
       }
     }
-    return null;
+    return [null];
+  }
+
+  function animateMatchedCells([a, b, c]) {
+    cells[a].classList.add('blinking');
+    cells[b].classList.add('blinking');
+    cells[c].classList.add('blinking');
   }
 
   return {
@@ -164,8 +176,13 @@ function handleClick(e) {
     return;
   };
 
-  GameController.makeMove(parseInt(e.target.dataset.cellId, 10));
-  if (GameController.isPlaying()) computerMove();
+  const moveSuccessAndIsPlaying =
+    GameController.makeMove(parseInt(e.target.dataset.cellId, 10))
+    && GameController.isPlaying();
+
+  if (moveSuccessAndIsPlaying) {
+    computerMove();
+  }
 }
 
 function computerMove() {

@@ -24,6 +24,12 @@ body {
   font-size: 12rem;
   display: grid;
   place-content: center;
+  overflow: hidden;
+  user-select: none;
+}
+
+.cell.blinking {
+  animation: blinking 1500ms linear infinite;
 }
 
 .cell:nth-child(3n) {
@@ -32,10 +38,6 @@ body {
 
 .cell:nth-child(n+7) {
   border-bottom: solid goldenrod;
-}
-
-.cell>p {
-  display: inline;
 }
 
 .cell>p.animate {
@@ -55,5 +57,19 @@ body {
 
   100% {
     transform: scale(1);
+  }
+}
+
+@keyframes blinking {
+  0% {
+    background-color: black;
+  }
+
+  50% {
+    background-color: lightslategray;
+  }
+
+  100% {
+    background-color: black;
   }
 }
