@@ -37,6 +37,7 @@ const Board = function () {
 
 const GameController = (function (board) {
   let isPlaying = true;
+  let isSleeping = false;
   let isPlayerTurn = true;
   let playerScore = 0;
   let computerScore = 0;
@@ -102,6 +103,7 @@ const GameController = (function (board) {
     // isPlayerTurn = !isPlayerTurn;
     board.reset();
     displayBoard();
+    if (GameController.getTurn() === 'Computer') computerMove();
   }
 
   function checkForWinner(cells) {
@@ -131,6 +133,9 @@ const GameController = (function (board) {
     nextRound,
     resetGame,
     isPlaying: () => isPlaying,
+    getBoard: () => board.getBoard(),
+    getIsSleeping: () => isSleeping,
+    setIsSleeping: (value) => isSleeping = value,
   }
 })(Board());
 
@@ -139,10 +144,31 @@ mainBoard.addEventListener('click', handleClick);
 
 function handleClick(e) {
   if (!e.target.matches('.cell')) return;
+  if (GameController.getIsSleeping()) {
+    e.stopPropagation();
+    return;
+  };
   if (!GameController.isPlaying()) {
     GameController.nextRound();
     return;
   };
 
   GameController.makeMove(parseInt(e.target.dataset.cellId, 10));
+  if (GameController.isPlaying()) computerMove();
+}
+
+function computerMove() {
+  GameController.setIsSleeping(true);
+  move();
+
+  function move() {
+    setTimeout(() => {
+      const availableMoves = GameController.getBoard().reduce(
+        (moves, v, i) => v === null ? [...moves, i] : moves, []
+      );
+      const location = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+      GameController.makeMove(parseInt(location, 10));
+      GameController.setIsSleeping(false);
+    }, 750);
+  }
 }

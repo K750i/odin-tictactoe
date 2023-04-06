@@ -11,11 +11,22 @@ body {
 
 .main-board {
   display: grid;
-  grid-template-columns: repeat(3, min(100px, 200px));
-  grid-template-rows: repeat(3, min(100px, 200px));
+  grid-template-columns: repeat(3, 200px);
+  grid-template-rows: repeat(3, 200px);
 }
 
 .cell {
-  border: solid steelblue;
+  border-top: solid steelblue;
+  border-left: solid steelblue;
   cursor: pointer;
+  text-align: center;
+  font-size: 12rem;
+}
+
+.cell:nth-child(3n) {
+  border-right: solid steelblue;
+}
+
+.cell:nth-child(n+7) {
+  border-bottom: solid steelblue;
 }
