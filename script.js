@@ -26,6 +26,9 @@ const Board = function () {
 
   const reset = () => {
     gameboard = Array(9).fill(null);
+    cells.forEach((cell) => {
+      cell.firstElementChild.classList.remove('animate');
+    })
   };
 
   return {
@@ -44,15 +47,24 @@ const GameController = (function (board) {
   let tie = 0;
   let winner;
 
-  const displayBoard = function () {
+  const displayBoard = function (loc = null) {
     const currentBoard = board.getBoard();
 
     cells.forEach((cell, i) => {
-      cell.textContent = currentBoard[i];
+      cell.firstElementChild.textContent = currentBoard[i];
     });
+
+    animateCell();
+
     playerScoreDisplay.textContent = playerScore;
     tieScoreDisplay.textContent = tie;
     computerScoreDisplay.textContent = computerScore;
+
+    function animateCell() {
+      if (loc !== null) {
+        cells[loc].firstElementChild.classList.add('animate');
+      }
+    }
   }
 
   const newGame = function (playerTurn = true) {
@@ -76,7 +88,7 @@ const GameController = (function (board) {
   const makeMove = function (location) {
     if (!board.setBoard(isPlayerTurn, location)) return;
 
-    displayBoard();
+    displayBoard(location);
 
     isPlayerTurn = !isPlayerTurn;
 
@@ -100,7 +112,6 @@ const GameController = (function (board) {
 
   const nextRound = function () {
     isPlaying = true;
-    // isPlayerTurn = !isPlayerTurn;
     board.reset();
     displayBoard();
     if (GameController.getTurn() === 'Computer') computerMove();
@@ -143,13 +154,13 @@ const GameController = (function (board) {
 mainBoard.addEventListener('click', handleClick);
 
 function handleClick(e) {
+  if (!GameController.isPlaying()) {
+    GameController.nextRound();
+    return;
+  };
   if (!e.target.matches('.cell')) return;
   if (GameController.getIsSleeping()) {
     e.stopPropagation();
-    return;
-  };
-  if (!GameController.isPlaying()) {
-    GameController.nextRound();
     return;
   };
 
@@ -169,6 +180,6 @@ function computerMove() {
       const location = availableMoves[Math.floor(Math.random() * availableMoves.length)];
       GameController.makeMove(parseInt(location, 10));
       GameController.setIsSleeping(false);
-    }, 750);
+    }, 650);
   }
 }
