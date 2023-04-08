@@ -30,6 +30,9 @@ const Board = function () {
       cell.classList.remove('blinking');
       cell.firstElementChild.classList.remove('animate');
     })
+    playerScoreDisplay.classList.remove('animate');
+    computerScoreDisplay.classList.remove('animate');
+    tieScoreDisplay.classList.remove('animate');
   };
 
   return {
@@ -99,8 +102,10 @@ const GameController = (function (board) {
     if (winner) {
       if (winner === 'X') {
         ++playerScore;
+        playerScoreDisplay.classList.add('animate');
       } else {
         ++computerScore;
+        computerScoreDisplay.classList.add('animate');
       }
       isPlaying = false;
       animateMatchedCells(cellIndexes);
@@ -108,6 +113,7 @@ const GameController = (function (board) {
       return;
     } else if (!board.getBoard().includes(null)) {
       ++tie;
+      tieScoreDisplay.classList.add('animate');
       isPlaying = false;
       displayBoard();
       return;
