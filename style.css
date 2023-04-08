@@ -11,8 +11,10 @@ body {
 }
 
 .site-wrapper {
-  padding-left: 420px;
-  padding-right: 420px;
+  display: flex;
+  flex-flow: column nowrap;
+  width: 620px;
+  margin: 20px auto;
 }
 
 .main-board {
@@ -84,4 +86,19 @@ section.display {
   flex-wrap: nowrap;
   justify-content: space-between;
   text-align: center;
+}
+
+@media (max-width: 500px) {
+  .site-wrapper {
+    width: 100%;
+  }
+
+  .main-board {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 30vw);
+  }
+
+  .cell {
+    font-size: 7rem;
+  }
 }
